@@ -18,28 +18,35 @@ const registerURL = (req, res) => {
 
     // if not exist - create
     if (!dbURL) {
-      //const newId = makeID();
-      const newId = 'newID';
+      const newId = makeID();
       const newURL = Object.assign({ id: newId, url: reqURL });
       URLDB.push(newURL);
       fs.writeFile(`${__dirname}/db/URLDB.json`, JSON.stringify(URLDB), err => {
-        rres.status(201).json({
-          url: `http://localhost:3000/${dbURL.id}`
+        res.status(201).json({
+          url: `http://localhost:3000/${newURL.id}`
         });
       });
     }
     // if exist - return
     else {
       res.status(200).json({
-        url: dbURL.url
+        url: `http://localhost:3000/${dbURL.id}`
       });
     }
   });
 };
 const redirectToURL = (req, res) => {
-  console.log('redirectToURL');
-  res.status(200).json({
-    redirectTo: 'the Location'
+  const id = req.params.id;
+  fs.readFile(`${__dirname}/db/URLDB.json`, (err, data) => {
+    if (err) throw err;
+    const db = JSON.parse(data);
+    const result = db.find(val => val.id === id);
+
+    if (result) {
+      res.redirect(301, result.url);
+    } else {
+      res.status(404);
+    }
   });
 };
 
