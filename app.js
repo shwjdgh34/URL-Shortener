@@ -3,7 +3,7 @@ const fs = require('fs');
 const express = require('express');
 const app = express();
 const port = 3000;
-console.log(moment().format('YYYY-MM-DD, h:mm:ss a'));
+
 //reference : https://gist.github.com/gordonbrander/2230317
 const makeID = () => {
   return Math.random()
@@ -49,6 +49,7 @@ const registerURL = (req, res) => {
 };
 const redirectToURL = (req, res) => {
   const id = req.params.id;
+  const visitTime = moment().format('YYYY-MM-DD hh:mm:ss');
   fs.readFile(`${__dirname}/db/URLDB.json`, (err, data) => {
     if (err) throw err;
     const URLDB = JSON.parse(data);
@@ -56,12 +57,22 @@ const redirectToURL = (req, res) => {
 
     if (dbURLObj) {
       //create stats.
-      //const newVisit = Date.now()
-      console.log(Date(Date.now()));
-      //fs.writeFile(`${__dirname}/db/VisitDB.json`, err => {
-      //if (err) throw err;
-      res.redirect(301, dbURLObj.url);
-      // });
+      fs.readFile(`${__dirname}/db/VisitDB.json`, (err, data) => {
+        if (err) throw err;
+        const visitDB = JSON.parse(data);
+        if (visitDB[id]) visitDB[id].push(visitTime);
+        else visitDB[id] = [visitTime];
+
+        fs.writeFile(
+          `${__dirname}/db/VisitDB.json`,
+          JSON.stringify(visitDB),
+          err => {
+            if (err) throw err;
+
+            res.redirect(301, dbURLObj.url);
+          }
+        );
+      });
     } else {
       res.status(404);
     }
