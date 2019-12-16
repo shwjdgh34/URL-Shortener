@@ -1,8 +1,9 @@
+const moment = require('moment');
 const fs = require('fs');
 const express = require('express');
 const app = express();
 const port = 3000;
-
+console.log(moment().format('YYYY-MM-DD, h:mm:ss a'));
 //reference : https://gist.github.com/gordonbrander/2230317
 const makeID = () => {
   return Math.random()
