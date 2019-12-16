@@ -1,15 +1,6 @@
 [
-  {
-    "id": "anyID",
-    "url": "http://www.vingle.net",
-    "Stats": [
-      { "at": "2018-03-02 01:00:00", "visits": 100 },
-      { "at": "2018-03-02 02:00:00", "visits": 200 },
-      { "at": "2018-03-02 03:00:00", "visits": 300 },
-      { "at": "2018-03-02 04:00:00", "visits": 150 },
-      { "at": "2018-03-02 05:00:00", "visits": 116 }
-    ]
-  },
-  { "id": "zo324e5ef", "url": "http://www.vingle.net2" },
-  { "id": "nhtwsfls5", "url": "http://www.vingwle.net2" }
+  { "id": "cvp3a1k73", "url": "http://www.vingle.net" },
+  { "id": "1in7u553x", "url": "http://www.vingle2.net" },
+  { "id": "1lnb9e9g7", "url": "http://www.vingle.net2" },
+  { "id": "hyia2548r", "url": "http://www.vingl3e.net2" }
 ]

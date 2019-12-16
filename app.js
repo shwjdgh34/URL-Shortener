@@ -13,6 +13,7 @@ const registerURL = (req, res) => {
   const protocol = req.protocol;
   const host = req.get('host');
   const reqURL = req.query.url;
+  const baseURL = `${protocol}://${host}`;
   //const URLDB = JSON.parse(fs.readFileSync(`${__dirname}/db/URLDB.json`));
   fs.readFile(`${__dirname}/db/URLDB.json`, (err, data) => {
     if (err) throw err;
@@ -22,19 +23,25 @@ const registerURL = (req, res) => {
 
     // if not exist - create
     if (!dbURLObj) {
+      console.log(URLDB.length);
+      if (URLDB.length >= 10000) {
+        return res.status(409).json({
+          status: 'fail to save url due to full db'
+        });
+      }
       const newId = makeID();
       const newURLObj = Object.assign({ id: newId, url: reqURL });
       URLDB.push(newURLObj);
       fs.writeFile(`${__dirname}/db/URLDB.json`, JSON.stringify(URLDB), err => {
         res.status(201).json({
-          url: `${protocol}://${host}/${newURLObj.id}`
+          url: `${baseURL}/${newURLObj.id}`
         });
       });
     }
     // if exist - return
     else {
       res.status(200).json({
-        url: `${protocol}://${host}/${dbURLObj.id}`
+        url: `${baseURL}/${dbURLObj.id}`
       });
     }
   });
@@ -48,7 +55,6 @@ const redirectToURL = (req, res) => {
 
     if (dbURLObj) {
       res.redirect(301, dbURLObj.url);
-      //res.status(200).json(dbURLObj.url);
     } else {
       res.status(404);
     }
