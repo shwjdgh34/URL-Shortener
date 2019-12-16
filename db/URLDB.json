@@ -1,1 +1,14 @@
-[{"id":"anyID","url":"http://www.vingle.net"},{"id":"newID","url":"http://www.vingle22.net"}]
+[
+  {
+    "id": "anyID",
+    "url": "http://www.vingle.net",
+    "Stats": [
+      { "at": "2018-03-02 01:00:00", "visits": 100 },
+      { "at": "2018-03-02 02:00:00", "visits": 200 },
+      { "at": "2018-03-02 03:00:00", "visits": 300 },
+      { "at": "2018-03-02 04:00:00", "visits": 150 },
+      { "at": "2018-03-02 05:00:00", "visits": 116 }
+    ]
+  },
+  { "id": "newID", "url": "http://www.vingle22.net" }
+]

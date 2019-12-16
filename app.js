@@ -3,7 +3,6 @@ const express = require('express');
 const app = express();
 const port = 3000;
 
-const URLDB = JSON.parse(fs.readFileSync(`${__dirname}/db/URLDB.json`));
 const makeID = () => {
   return Math.random()
     .toString(36)
@@ -11,29 +10,31 @@ const makeID = () => {
 };
 const registerURL = (req, res) => {
   const reqURL = req.query.url;
-  console.log(' hi there, this is for registerURL');
+  //const URLDB = JSON.parse(fs.readFileSync(`${__dirname}/db/URLDB.json`));
+  fs.readFile(`${__dirname}/db/URLDB.json`, (err, data) => {
+    const URLDB = JSON.parse(data);
+    // search DB wether the url exists already.
+    const dbURL = URLDB.find(el => el.url === reqURL);
 
-  // search DB wether the url exists already.
-  const dbURL = URLDB.find(el => el.url === reqURL);
-
-  // if not exist - create
-  if (!dbURL) {
-    //const newId = makeID();
-    const newId = 'newID';
-    const newURL = Object.assign({ id: newId, url: reqURL });
-    URLDB.push(newURL);
-    fs.writeFile(`${__dirname}/db/URLDB.json`, JSON.stringify(URLDB), err => {
-      rres.status(201).json({
-        url: `http://localhost:3000/${dbURL.id}`
+    // if not exist - create
+    if (!dbURL) {
+      //const newId = makeID();
+      const newId = 'newID';
+      const newURL = Object.assign({ id: newId, url: reqURL });
+      URLDB.push(newURL);
+      fs.writeFile(`${__dirname}/db/URLDB.json`, JSON.stringify(URLDB), err => {
+        rres.status(201).json({
+          url: `http://localhost:3000/${dbURL.id}`
+        });
       });
-    });
-  }
-  // if exist - return
-  else {
-    res.status(200).json({
-      url: dbURL.url
-    });
-  }
+    }
+    // if exist - return
+    else {
+      res.status(200).json({
+        url: dbURL.url
+      });
+    }
+  });
 };
 const redirectToURL = (req, res) => {
   console.log('redirectToURL');
