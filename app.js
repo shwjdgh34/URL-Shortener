@@ -3,27 +3,37 @@ const express = require('express');
 const app = express();
 const port = 3000;
 
-const URL = JSON.parse(fs.readFileSync(`${__dirname}/db/URLDB.json`));
+const URLDB = JSON.parse(fs.readFileSync(`${__dirname}/db/URLDB.json`));
 const makeID = () => {
   return Math.random()
     .toString(36)
     .substr(2, 9);
 };
 const registerURL = (req, res) => {
-  console.log(req.query.url);
-
+  const reqURL = req.query.url;
   console.log(' hi there, this is for registerURL');
 
   // search DB wether the url exists already.
+  const dbURL = URLDB.find(el => el.url === reqURL);
 
+  // if not exist - create
+  if (!dbURL) {
+    //const newId = makeID();
+    const newId = 'newID';
+    const newURL = Object.assign({ id: newId, url: reqURL });
+    URLDB.push(newURL);
+    fs.writeFile(`${__dirname}/db/URLDB.json`, JSON.stringify(URLDB), err => {
+      rres.status(201).json({
+        url: `http://localhost:3000/${dbURL.id}`
+      });
+    });
+  }
   // if exist - return
-  res.status(200).json({
-    url: `http://localhost:3000/${id}`
-  });
-  // if not - create
-  //   res.status(201).json({
-  //     url: 'http://localhost:3000/abuwksd54 '
-  //   });
+  else {
+    res.status(200).json({
+      url: dbURL.url
+    });
+  }
 };
 const redirectToURL = (req, res) => {
   console.log('redirectToURL');
