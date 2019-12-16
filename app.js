@@ -54,7 +54,11 @@ const redirectToURL = (req, res) => {
     const dbURLObj = URLDB.find(val => val.id === id);
 
     if (dbURLObj) {
-      res.redirect(301, dbURLObj.url);
+      //create stats.
+      fs.writeFile(`${__dirname}/db/VisitDB.json`, err => {
+        if (err) throw err;
+        res.redirect(301, dbURLObj.url);
+      });
     } else {
       res.status(404);
     }
@@ -62,13 +66,33 @@ const redirectToURL = (req, res) => {
 };
 
 const getStats = (req, res) => {
-  console.log('getStats');
-  res.status(200).json({
-    Stats: [
-      { at: '2018-03-02 01:00:00', visits: '100' },
-      { at: '2018-03-02 02:00:00', visits: '200' },
-      { at: '2018-03-02 03:00:00', visits: '300' }
-    ]
+  const id = req.params.id;
+  fs.readFile(`${__dirname}/db/VisitDB.json`, (err, data) => {
+    if (err) throw err;
+    const result = JSON.parse(data)[id];
+    const hash = Object.create(null);
+    const grouped = [];
+
+    if (result) {
+      result.forEach(ele => {
+        const key = ele.slice(0, 13);
+
+        if (!hash[key]) {
+          hash[key] = { at: key + ':00:00', visit: 0 };
+          grouped.push(hash[key]);
+        }
+        hash[key].visit += 1;
+      });
+      grouped.sort(function(a, b) {
+        return a.at.localeCompare(b.at);
+      });
+
+      res.status(200).json({
+        Stats: grouped
+      });
+    } else {
+      res.status(404);
+    }
   });
 };
 app.use(express.json());
