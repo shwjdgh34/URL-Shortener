@@ -55,10 +55,12 @@ const redirectToURL = (req, res) => {
 
     if (dbURLObj) {
       //create stats.
-      fs.writeFile(`${__dirname}/db/VisitDB.json`, err => {
-        if (err) throw err;
-        res.redirect(301, dbURLObj.url);
-      });
+      //const newVisit = Date.now()
+      console.log(Date(Date.now()));
+      //fs.writeFile(`${__dirname}/db/VisitDB.json`, err => {
+      //if (err) throw err;
+      res.redirect(301, dbURLObj.url);
+      // });
     } else {
       res.status(404);
     }
