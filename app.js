@@ -13,7 +13,7 @@ const readFilePro = file => {
   });
 };
 
-const writeFilePro = file => {
+const writeFilePro = (file, data) => {
   return new Promise((resolve, reject) => {
     fs.writeFile(file, data, err => {
       if (err) reject('Could not write that file 😥');
@@ -64,44 +64,43 @@ const registerURL = async (req, res) => {
     }
   } catch (err) {
     console.log(err);
+    throw err;
   }
 };
-const redirectToURL = (req, res) => {
-  const id = req.params.id;
-  const visitTime = moment().format('YYYY-MM-DD hh:mm:ss');
-  fs.readFile(`${__dirname}/db/URLDB.json`, (err, data) => {
-    if (err) throw err;
+const redirectToURL = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const data = await readFilePro(`${__dirname}/db/URLDB.json`);
     const URLDB = JSON.parse(data);
     const dbURLObj = URLDB.find(val => val.id === id);
 
     if (dbURLObj) {
       //create stats.
-      fs.readFile(`${__dirname}/db/VisitDB.json`, (err, data) => {
-        if (err) throw err;
-        const visitDB = JSON.parse(data);
-        if (visitDB[id]) visitDB[id].push(visitTime);
-        else visitDB[id] = [visitTime];
+      const visitData = await readFilePro(`${__dirname}/db/VisitDB.json`);
+      const visitDB = JSON.parse(visitData);
+      const visitTime = moment().format('YYYY-MM-DD hh:mm:ss');
+      if (visitDB[id]) visitDB[id].push(visitTime);
+      else visitDB[id] = [visitTime];
 
-        fs.writeFile(
-          `${__dirname}/db/VisitDB.json`,
-          JSON.stringify(visitDB),
-          err => {
-            if (err) throw err;
-
-            res.redirect(301, dbURLObj.url);
-          }
-        );
-      });
+      await writeFilePro(
+        `${__dirname}/db/VisitDB.json`,
+        JSON.stringify(visitDB)
+      );
+      res.redirect(301, dbURLObj.url);
     } else {
+      // TODO: proper Status code
       res.status(404);
     }
-  });
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
 };
 
-const getStats = (req, res) => {
-  const id = req.params.id;
-  fs.readFile(`${__dirname}/db/VisitDB.json`, (err, data) => {
-    if (err) throw err;
+const getStats = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const data = await readFilePro(`${__dirname}/db/VisitDB.json`);
     const result = JSON.parse(data)[id];
     const hash = Object.create(null);
     const grouped = [];
@@ -109,7 +108,6 @@ const getStats = (req, res) => {
     if (result) {
       result.forEach(ele => {
         const key = ele.slice(0, 13);
-
         if (!hash[key]) {
           hash[key] = { at: key + ':00:00', visit: 0 };
           grouped.push(hash[key]);
@@ -124,11 +122,16 @@ const getStats = (req, res) => {
         Stats: grouped
       });
     } else {
+      // TODO: proper Status code
       res.status(404);
     }
-  });
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
 };
 app.use(express.json());
+// TODO: error handle
 app.route('/register.json').post(registerURL);
 app.route('/:id').get(redirectToURL);
 app.route('/:id/stats').get(getStats);
