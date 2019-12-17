@@ -129,7 +129,7 @@ const getStats = (req, res) => {
   });
 };
 app.use(express.json());
-app.route('/register.json').get(registerURL);
+app.route('/register.json').post(registerURL);
 app.route('/:id').get(redirectToURL);
 app.route('/:id/stats').get(getStats);
 
